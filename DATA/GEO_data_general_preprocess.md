@@ -58,3 +58,36 @@ rm(list = ls())
 
 ## Ensembl id & Symbol id
 
+Sometimes, the expression matrix always has the row names, however those are Ensembl id......
+
+We can't say that Ensembl id is bad, but in some way Symbol id is indeed a better choice. So I have to transform Ensembl id into Symbol id.
+
+I have to clarify that both Ensembl & Symbol id are all Gene id. They are completely different from Probe id used in Chip data. Let's make it simble:
+
+We can use Ensembl id or Symbol in expression matrix. But we can never use probe id in a normal expression matrix.
+
+In order to make this transformation, I have to seek help in Ensembl main website, and I find something called Biomart.
+
+The steps are listed below:
+
+```shell
+# 1.Extract Ensembl ID from Expression(Not in Excel!!!) 
+cat Your_Expr_Matrix | awk '{print $1}' | sed -i '1d'> EnsemblID.txt
+
+-----------------------------------------------------------------------------------------------------
+
+# Or use R
+rt<-read.table(file = 'Your_Expr_Matrix.txt',header = T,row.names = 1)
+EnsemblID<-row.names(rt)
+write.csv(EnsemblID,file = 'EnsemblID.txt')
+# Next though we can use biomart API in R, but it's easier to use website directely
+```
+
+We use biomart to retrieve Gene Symbol matched the Ensembl id:
+
+[Biomart](http://grch37.ensembl.org/biomart/martview/ebd624a5c1df8c3f5c571a8afb446513)
+
+And  then I upload my gene list, and I can easily get the gene feature whatever I wanted. Together with Function merge in R, we can then transform Ensembl id into Symbol.
+
+However, this is not a general way to solve this problem, I will then get a general method using R and biomart API.
+
