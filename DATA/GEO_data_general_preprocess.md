@@ -56,6 +56,129 @@ rm(list = ls())
 
 **This script isn't my original creation, I get it from internet and thanks to [biotrainee](<http://www.biotrainee.com/>)  very much for this !**
 
+One day, a friend asked me about precessing the expression matrix with some easier way. So, here I am going to intaregate the most common solution for this problem, however it need a time-cost learning precess.
+
+Using perl:
+``` Perl
+# This is a perl script:
+use strict;
+use warnings;
+print STDERR "gene symbol column number: ";
+my $geneSymbolCol=<STDIN>;
+chomp($geneSymbolCol);
+$geneSymbolCol--;
+my $expFile="probeMatrix.txt";
+my $gplFile="ann.txt";
+my $expFileWF="geneMatrix.txt";
+my %hash=();
+my @sampleName=();
+
+open(EXP,"$expFile") or die $!;
+while(my $exp=<EXP>)
+{
+	next if ($exp=~/^(\n|\!)/);
+	chomp($exp);
+	if($.==1)
+	{
+		my @expArr=split(/\t/,$exp);
+		foreach my $singleName (@expArr)
+		{
+			$singleName=~s/\"//g;
+			if($singleName eq 'ID_REF')
+			{
+				push(@sampleName,$singleName);
+			}
+			else
+			{
+				my @singleArr=split(/\_|\./,$singleName);
+				push(@sampleName,$singleArr[0]);
+			}
+		}
+	}
+	else
+	{
+		my @expArr=split(/\t/,$exp);
+		for(my $i=0;$i<=$#sampleName;$i++)
+		{
+			$expArr[$i]=~s/\"//g;
+			push(@{$hash{$sampleName[$i]}},$expArr[$i]);
+		}
+	}
+}
+close(EXP);
+
+my %probeGeneHash=();
+
+open(GPL,"$gplFile") or die $!;
+while(my $gpl=<GPL>)
+{
+	next if($gpl=~/^(\#|ID|\!|\n)/);
+	chomp($gpl);
+	my @gplArr=split(/\t/,$gpl);
+	if((exists $gplArr[$geneSymbolCol]) && ($gplArr[$geneSymbolCol] ne '') && ($gplArr[$geneSymbolCol] !~ /.+\s+.+/))
+	{
+		$gplArr[$geneSymbolCol]=~s/\//\./g;
+		$gplArr[$geneSymbolCol]=~s/\"//g;
+		$probeGeneHash{$gplArr[0]}=$gplArr[$geneSymbolCol];
+	}
+}
+close(GPL);
+
+my @probeName=@{$hash{"ID_REF"}};
+delete($hash{"ID_REF"});
+
+my %geneListHash=();
+my %sampleGeneExpHash=();
+foreach my $key (keys %hash)
+{
+	my %geneAveHash=();
+	my %geneCountHash=();
+	my %geneSumHash=();
+	my @valueArr=@{$hash{$key}};
+	for(my $i=0;$i<=$#probeName;$i++)
+	{
+		if(exists $probeGeneHash{$probeName[$i]})
+		{
+			my $geneName=$probeGeneHash{$probeName[$i]};
+			$geneListHash{$geneName}++;
+			$geneCountHash{$geneName}++;
+			$geneSumHash{$geneName}+=$valueArr[$i];
+		}
+	}
+	foreach my $countKey (keys %geneCountHash)
+	{
+		$geneAveHash{$countKey}=$geneSumHash{$countKey}/$geneCountHash{$countKey};
+	}
+	$sampleGeneExpHash{$key}=\%geneAveHash;
+}
+
+open(WF,">$expFileWF") or die $!;
+$sampleName[0]="geneNames";
+print WF join("\t",@sampleName) . "\n";
+foreach my $probeGeneValue (sort(keys %geneListHash))
+{
+	print WF $probeGeneValue . "\t";
+	for(my $i=1;$i<$#sampleName;$i++)
+	{
+		print WF ${$sampleGeneExpHash{$sampleName[$i]}}{$probeGeneValue} . "\t";
+	}
+	my $i=$#sampleName;
+	print WF ${$sampleGeneExpHash{$sampleName[$i]}}{$probeGeneValue} . "\n";
+}
+close(WF);
+```
+In order to use this script, you must have perl. This is not a problem in *nux system in which perl is alread installed. If you a using a windows PC, you need [ActivePerl](https://www.activestate.com/products/activeperl/) or [StrawberryPerl](http://strawberryperl.com), both softwares(You can see these as some kind of software......) are very easy to install.
+
+And notice, there is on row written like this:
+```perl
+print STDERR "gene symbol column number: ";
+```
+So you have to enter the number of "Symbol id" in the GPL Platform file downloaded from GEO. And of course an expression matrix is also needed.
+
+Put these two files in the same directory and rename them into "probeMatrix.txt" & "ann.txt", and type perl Your_Script_name.pl in you terminal or PowerShell. After that typing the number 11(The most common number......) and wait, after that a file named "geneMatrix.txt" will be created in the same folder.
+
+But of course this script isn't written by me. And thanks to the unknown one who created this script in the first place!
+
 ## Ensembl id & Symbol id
 
 Sometimes, the expression matrix always has the row names, however those are Ensembl id......
