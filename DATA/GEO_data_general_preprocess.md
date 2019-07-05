@@ -179,6 +179,76 @@ Put these two files in the same directory and rename them into "probeMatrix.txt"
 
 But of course this script isn't written by me. And thanks to the unknown one who created this script in the first place!
 
+I have accidently find another method to complete this mission with python! I must cite:
+
+- K. Koizumi, M. Oku, S. Hayashi, A. Inujima, N. Shibahara, L. Chen, Y. Igarashi, K. Tobe, S. Saito, M. Kadowaki, and K. Aihara: Identifying pre-disease signals before metabolic syndrome in mice by dynamical network biomarkers, Scientific Reports, 9:8767 (2019). https://doi.org/10.1038/s41598-019-45119-w
+
+```python
+# load data
+def load_data():
+  file_name = '../data/data.tsv'
+  data_df = pd.read_csv(file_name, sep='\t', header=[0,1,2], index_col=0)
+  data_df.columns = data_df.columns.droplevel(0)
+  data_df = (data_df / stats.trim_mean(data_df, 0.02)).apply(np.log2)
+  return data_df
+
+def load_info():
+  file_name = '../data/info.tsv'
+  return pd.read_csv(file_name, sep='\t')
+
+if __name__ == '__main__':
+  data_df = load_data()
+  info_df = load_info()
+    
+# process data
+import numpy as np
+import pandas as pd
+
+def preprocess_data():
+
+  # NOTE: the mapping relations between probe names and gene symbols
+  # were extracted from 028005_D_GeneList_20171030.txt obtained at:
+  # https://earray.chem.agilent.com/earray/catalogGeneLists.do?action=displaylist
+  # It was the latest at the momemnt of the paper submission.
+  data_file_name = '../data/Your_Matrix_data.txt'
+  mapping_file_name = '../data/id_meta_mapping.tsv' 
+  output_file_name = '../data/data.tsv'
+
+  # load expression data file ---------------------------------
+
+  df = pd.read_csv(data_file_name, sep='\t', index_col=0, 
+                   header=[35,71]) # '!Sample_title', 'ID_REF'
+  df.drop('!series_matrix_table_end', inplace=True) # => 62976 x 64
+  df.index = df.index.astype(int)
+
+  # rename columns ------------------------------------------------
+
+  col_idx         = df.columns.get_level_values(0)
+  condition_idx   = col_idx.str.split('_').str[0]
+  week_idx        = col_idx.str.split('_').str[1].str.replace('w','')
+  df.columns = [np.arange(len(col_idx)), condition_idx, week_idx]
+  df.columns.names = ['sample_no', 'condition', 'week']
+  
+  # id conversion -------------------------------------------------
+
+  mapping_sr = pd.read_csv(mapping_file_name, sep='\t',
+                           usecols=['FeatureNum', 'GeneSymbol'],
+                           index_col=0, squeeze=True).dropna()
+  df = df.loc[mapping_sr.index].rename(mapping_sr)
+  df = df.groupby(axis=0,level=0).mean()
+  df.index.name = 'gene_symbol'
+
+  # save to file -------------------------------------------------
+
+  df.to_csv(output_file_name, sep='\t')
+
+
+if __name__ == '__main__':
+  preprocess_data()
+```
+
+We use the jupyter notebook to run the script, note that you need to put the Matrix-data and Meta data in the same directory.
+
 ## Ensembl id & Symbol id
 
 Sometimes, the expression matrix always has the row names, however those are Ensembl id......
