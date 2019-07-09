@@ -284,3 +284,55 @@ And  then I upload my gene list, and I can easily get the gene feature whatever 
 
 However, this is not a general way to solve this problem, I will then get a general method using R and biomart API.
 
+## Duplicated Symbol?(Gene id)
+
+Sometimes I can't get a really 'clean' matrix as I wanted, thus I have to make it so. And the most common problems I have faced are those duplicated **Symbols**, or row names if you want to call them that.
+
+There is a very simple solution for this, just using *group_by* method:
+
+```R
+data_tem<-Matrix_data_with_duplicated_rownames %>%
+	group_by(Symbol) %>% 
+  summarise_all(max)
+write.csv(data_tem,file = 'clean_matrix_data.csv')
+```
+
+And why is **' max'** ?
+
+Simple, in a biologist's view, the max signature is what he/she wanted. Consider you are a doctor and you are going to check a patient was suspected having a tumor. You did the routine check following the golden standered procesure and did it for three times. But, you just have a spike signature in the first check, what will you do?
+
+You, of course, are going to ask this patient to go further check because of that only spike signature.
+
+Same reason here.
+
+## Count, FPKM, RPKM & TPM Transformation
+
+```R
+countToTpm <- function(counts, effLen)
+{
+    rate <- log(counts) - log(effLen)
+    denom <- log(sum(exp(rate)))
+    exp(rate - denom + log(1e6))
+}
+ 
+countToFpkm <- function(counts, effLen)
+{
+    N <- sum(counts)
+    exp( log(counts) + log(1e9) - log(effLen) - log(N) )
+}
+ 
+fpkmToTpm <- function(fpkm)
+{
+    exp(log(fpkm) - log(sum(fpkm)) + log(1e6))
+}
+ 
+countToEffCounts <- function(counts, len, effLen)
+{
+    counts * (len / effLen)
+}
+
+```
+
+**Cite: *Measurement of mRNA abundance using RNA-seq data: RPKM measure is inconsistent among samples.*
+Wagner GP1, Kin K, Lynch VJ.**
+

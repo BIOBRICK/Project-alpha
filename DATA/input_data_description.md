@@ -12,10 +12,13 @@ All data have full available to everyone.
 
 GEO data: GEO-id and Paper included.
 
-| GEO-id | Sequencing Method | Method to Quantification Expression level | Species | Paper | Paper Year |
-| :----: | :---------------: | :---------------------------------------: | :-----: | :---: | ---------- |
-|        |                   |                                           |         |       |            |
-|        |                   |                                           |         |       |            |
+|  GEO-id   |                      Sequencing Method                       | Method to Quantification Expression level | Paper | Paper Year |
+| :-------: | :----------------------------------------------------------: | :---------------------------------------: | :--: | :---: |
+| GSE90047 |  |  |  |  |
+| GSE52583 |                                                              |                                           |      |       |
+| GSE79578 | | | | |
+|  | | | | |
+|  | | | | |
 
 ## 3.Annotation Files
 
