@@ -30,6 +30,10 @@ names(clinical)<-c('Id','stage')
 
 write.csv(clinical,file = "clinical.csv")
 
+#为了进行后续生存分析，这里另外提取一组生存信息用的表：
+clinical_vital<-subset(clinicalDa,select = c("Patient_id","days_to_death","days_to_last_followup","vital_status","pathologic_stage"))
+write.csv(clinical_vital,file = "clinical_vital.csv")
+
 ##################################################################################################
 #Merge RNA data and clinical data.
 clinicalFile="clinical.csv"
