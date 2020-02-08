@@ -2,7 +2,7 @@
 
 ## 1.Data Origin
 
-The data involved in my project is so called "Public Bio-data", most of them are expression data come from [NCBI-GEO](<https://www.ncbi.nlm.nih.gov/geo/>). The GEO-id will be listed below.
+The data involved in my project is so called "Public Bio-data". They are expression data come from TCGA. The TCGA sample name will be listed below.
 
 Beside that, I also need some annotation files, I got them all from website [ENSEMBL](<http://www.ensembl.org/index.html>) by using FTP. To keep data in fashion, I use GRCh38/MM10 annotations.
 
@@ -12,13 +12,12 @@ All data have full available to everyone.
 
 GEO data: GEO-id and Paper included.
 
-|  GEO-id   |                      Sequencing Method                       | Method to Quantification Expression level | Paper | Paper Year |
+|  id   |                      Sequencing Method                       | Method to Quantification Expression level | Paper | Paper Year |
 | :-------: | :----------------------------------------------------------: | :---------------------------------------: | :--: | :---: |
-| GSE90047 |  |  |  |  |
-| TCGA-COAD |                                                              | FPKM | - | - |
-| TCGA-KIPR | | FPKM | - | - |
-|  | | | | |
-|  | | | | |
+| TCGA-ESCA | Illuminia | FPKM | - | - |
+| TCGA-READ | Illuminia | FPKM | - | - |
+| TCGA-HNSC | Illuminia | FPKM | - | - |
+| TCGA-UCEC | Illuminia | FPKM | - | - |
 
 ## 3.Annotation Files
 
